@@ -1,0 +1,9 @@
+version: "3.9"
+services:
+  service:
+    build: .
+    image: "atforestry/${IMAGE_NAME}"
+    ports:
+      - "8000:8000" 
+    volumes:
+      - ./src:/usr/src/app/src
