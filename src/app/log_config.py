@@ -17,6 +17,6 @@ log_config = {
         },
     },
     "loggers": {
-        "capstone": {"handlers": ["default"], "level": "INFO"},
+        "planet_api_logger": {"handlers": ["default"], "level": "INFO"},
     },
 }
