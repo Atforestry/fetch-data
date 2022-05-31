@@ -1,17 +1,24 @@
+
 import sys
 sys.path.insert(1, './src')
 
 from fastapi import FastAPI, status
-from fastapi.responses import HTMLResponse
-
+from fastapi.responses import HTMLResponse, FileResponse
+from app.utils import get_raster_image_path
+from app.views import PlanetAPI, Mosaic
 import logging
 from logging.config import dictConfig
-from log_config import log_config 
+from app.log_config import log_config 
+import requests
+
 
 dictConfig(log_config)
-logger = logging.getLogger("capstone") # should be this name unless you change it in log_config.py
+logger = logging.getLogger("planet_api_logger") # should be this name unless you change it in log_config.py
 
-app = FastAPI()
+app = FastAPI(
+    title='Atforesty Planet Batch Run Service',
+    description='This API allows to fetch data from the Planet interface',
+    version="1.0.0")
 
 @app.get('/healthcheck', status_code=status.HTTP_200_OK)
 def perform_healthcheck():
@@ -22,7 +29,68 @@ def perform_healthcheck():
 async def main():
     content = """
 <body>
-<p>Hello World !</p>
+<p>Atforestry Planet Batch Run!!</p>
 </body>
     """
     return HTMLResponse(content=content)
+
+@app.on_event("startup")
+async def startup_event():
+    """Authenticates to Planet API
+
+    Raises:
+        SystemError: If no PLANET_API_KEY is provided
+    """    
+    global planet_api
+    planet_api = PlanetAPI()
+    #setup session
+    global session
+    session = requests.Session()
+    #authenticate
+    if planet_api.api_key == None:
+        raise SystemError('environment PLANET_API_KEY variable is empty!!')
+
+    session.auth = (planet_api.api_key, "")
+
+@app.get("/v1/check_planet_connection")
+async def check_connection():
+    """Checks connection status tu planet API
+
+    Returns:
+        res.status_code: Response should be 200
+    """    
+    parameters = {
+    "name__is" :'planet_medres_normalized_analytic_2022-04_mosaic'
+    }
+    res = session.get(planet_api.api_url, params = parameters)
+    logger.info("Health connection to Planet")
+    return {'response':res.status_code,
+            'description':'acces confirmed'
+    }
+
+@app.get("/v1/fetch_mosaics")
+async def fetch_mosaics(mosaic_name:str, date:str, bbox:str):
+    mosaic = Mosaic(name = mosaic_name, date=date, session=session, url=planet_api.api_url)
+    #Set the mosaic id
+    mosaic.set_mosaic_id()
+    #Get the quads
+    mosaic.get_quads_from_mosaic(bbox=bbox)
+    logger.info("Requesting quads tiffs")
+    #Download quads
+    mosaic.download_quads_tiff()
+    logger.info("Pushing metadata")
+    #Store metadata
+    mosaic.store_quads_metadata()   
+    logger.info("Converting tiff to rgb files")    
+    #Store rgb rasters
+    mosaic.generate_raster_files()
+    logger.info("Files Generated")    
+    return {'status': 'success'}
+
+@app.get("/v1/get_raster_image")
+async def gest_raster_image(bbox:str, date:str, raster_location:int):
+    bbox=bbox.split(',')
+    bbox = [float(i) for i in bbox]
+    print(bbox)
+    file_path = get_raster_image_path(bbox=bbox, mosaic_date=date, raster_location=raster_location)   
+    return FileResponse(file_path)

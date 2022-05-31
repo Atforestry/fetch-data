@@ -6,4 +6,6 @@ services:
     ports:
       - "8000:8000" 
     volumes:
-      - ./src:/usr/src/app/src
+      - ./src:/app/src
+    environment: 
+      - PLANET_API_KEY=${PLANET_API_KEY}
