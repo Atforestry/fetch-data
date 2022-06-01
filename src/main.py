@@ -4,12 +4,13 @@ sys.path.insert(1, './src')
 
 from fastapi import FastAPI, status
 from fastapi.responses import HTMLResponse, FileResponse
-from app.utils import get_raster_image_path
+from app.utils import get_raster_image_path, predict_raster_deforestation_category
 from app.views import PlanetAPI, Mosaic
 import logging
 from logging.config import dictConfig
 from app.log_config import log_config 
 import requests
+import io
 
 
 dictConfig(log_config)
@@ -94,3 +95,13 @@ async def gest_raster_image(bbox:str, date:str, raster_location:int):
     print(bbox)
     file_path = get_raster_image_path(bbox=bbox, mosaic_date=date, raster_location=raster_location)   
     return FileResponse(file_path)
+
+@app.post("/v1/predict_raster_image")
+async def post_raster_image(bbox:str, date:str, raster_location:int):
+    bbox=bbox.split(',')
+    bbox = [float(i) for i in bbox]
+    file_path = get_raster_image_path(bbox=bbox, mosaic_date=date, raster_location=raster_location)   
+    prediction = predict_raster_deforestation_category(path=file_path)
+    return {'prediction': prediction}
+
+

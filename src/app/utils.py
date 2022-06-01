@@ -9,6 +9,7 @@ from os.path import isfile, join
 import matplotlib.pyplot as plt
 import numpy as np
 import cv2
+import requests
 
 def imshow(inp, fig_size=4, title=None):
     """Imshow for Tensor."""
@@ -84,6 +85,20 @@ def get_raster_image_path(bbox:list, mosaic_date:str, raster_location:int):
             raster_path = os.path.join(item['mosaic_id'],item['id'],str(raster_location)+'.png')
             full_roster_path = os.path.join(main_path, raster_path)
             return full_roster_path
+
+def predict_raster_deforestation_category(path:str):
+    url = "http://35.223.171.201:8020/v1/predict_image_label"
+    payload={}
+    
+    files=[
+    ('file',(os.path.basename(path),open(path,'rb'),'image/png'))
+    ]
+    headers = {}
+    response = requests.request("POST", url, headers=headers, data=payload, files=files)
+    print(response)
+    return response.text
+
+
 
 
         
