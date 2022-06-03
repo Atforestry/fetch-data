@@ -4,10 +4,10 @@ After running the **make build and run** commands you should be able to test the
 
 ## Fetching Mosaics:
 
-Below will fetch all the images from mosaic *planet_medres_normalized_analytic* for date **2021-07** and bounding box **-53,-4,-52,-3**
+Below will fetch all the images from mosaic *planet_medres_normalized_analytic* for date **2021-08** and bounding box **-53,-4,-52,-3**
 
 ```
-curl --location --request GET 'http://127.0.01:8000/v1/fetch_mosaics?mosaic_name=planet_medres_normalized_analytic&date=2021-07&bbox=-53,-4,-52,-3'
+curl --location --request GET 'http://your_host:8000/v1/fetch_mosaics?mosaic_name=planet_medres_normalized_analytic&date=2021-08&bbox=-53,-4,-52,-3'
 ```
 
 ## Getting a raster image
