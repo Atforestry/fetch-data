@@ -1,5 +1,7 @@
 # Running the Service:
 
+Before running anything, make sure to set up the credentials of PLANET_API_KEY on the .env file
+
 After running the **make build and run** commands you should be able to test the api as below
 
 ## Fetching Mosaics:
