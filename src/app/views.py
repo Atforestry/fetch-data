@@ -1,11 +1,19 @@
+from builtins import breakpoint
 import os
 import json
 import urllib.request
-from app.utils import generate_raster_png_files, list_files_in_directory
+from app.utils import generate_raster_png_files, list_files_in_directory, predict_raster_deforestation_category, get_coordinate_from_metadata
+import pandas as pd
+import datetime
+from sqlalchemy import create_engine
+import psycopg2
 
 
 PLANET_API_KEY = os.environ.get('PLANET_API_KEY')
 PLANET_URL = "https://api.planet.com/basemaps/v1/mosaics"
+POSTGRES_DB = os.getenv('POSTGRES_DB')
+POSTGRES_USER = os.getenv('POSTGRES_USER')
+POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
 
 class PlanetAPI():
     def __init__(self, api_key=PLANET_API_KEY, api_url=PLANET_URL):
@@ -137,5 +145,64 @@ class Mosaic():
         for tiff_file in tiff_files:
             generate_raster_png_files(tiff_file=tiff_file,mosaic_code=self.id, path='src/data/mosaics/')
         return None
+
+    def run_inference_predictions(self):
+        #Get path
+        main_path = os.path.join('src','data', 'mosaics')
+        #initialize Datframe
+        data = pd.DataFrame(columns=["sqbl_longitude", "sqbl_latitude","sqtr_longitude", "sqtr_latitude", "prediction", "roster", "tiff_code", "mosaic"])
+        #create postgres connection
+        conn_string = f'postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@35.223.171.201:5432/{POSTGRES_DB}'
+        db = create_engine(conn_string)
+        conn = db.connect()
+        
+        #list tiff folfers in mosaic folders
+        tiff_folders = os.listdir(os.path.join(main_path,self.id))
+
+        for tiff_folder_name in tiff_folders:
+            #if is a directory
+            if os.path.isdir(os.path.join(main_path, self.id, tiff_folder_name)):
+                #for roster in tiff
+                for roster in list_files_in_directory(os.path.join(main_path, self.id, tiff_folder_name)):
+                    
+                    roster_path = os.path.join(main_path, self.id, tiff_folder_name, roster)
+                    prediction = predict_raster_deforestation_category(path=roster_path)
+                    
+                    # coordinates
+
+                    coordinates = get_coordinate_from_metadata(mosaic_id=self.id, tiff_id=tiff_folder_name)
+
+                    #Prediction tame
+
+                    date = self.date
+                    date_list = date.split('-')
+                    prediction_date = datetime.date(year=int(date_list[0]),month=int(date_list[1]),day=1)
+
+                    entry = pd.DataFrame.from_dict({
+                        "sqbl_longitude": [coordinates[0]],
+                        "sqbl_latitude": [coordinates[1]],
+                        "sqtr_longitude": [coordinates[2]],
+                        "sqtr_latitude": [coordinates[3]],
+                        "prediction": prediction,
+                        "prediction_stamp":prediction_date,
+                        "tiff_code": tiff_folder_name,
+                        "roster":os.path.basename(roster_path)[:-4],
+                        "mosaic": self.id
+                    })
+
+                    data = pd.concat([data, entry], ignore_index=True)
+                    #write to dataframe
+                    data.to_csv(os.path.join('src','data','data.csv'), index=False)
+
+                    #write to postgres
+                    data.to_sql('data', con=conn, if_exists='append',
+                            index=False)
+        conn.close()
+
+
+                    
+
+
+
             
 

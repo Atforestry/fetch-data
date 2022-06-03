@@ -85,7 +85,10 @@ async def fetch_mosaics(mosaic_name:str, date:str, bbox:str):
     logger.info("Converting tiff to rgb files")    
     #Store rgb rasters
     mosaic.generate_raster_files()
-    logger.info("Files Generated")    
+    logger.info("Files Generated")   
+    #Run Predicitions
+    logger.info("Run Predictions") 
+    mosaic.run_inference_predictions()  
     return {'status': 'success'}
 
 @app.get("/v1/get_raster_image")

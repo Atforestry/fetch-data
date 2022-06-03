@@ -10,6 +10,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import cv2
 import requests
+import pandas as pd
+
+
+
 
 def imshow(inp, fig_size=4, title=None):
     """Imshow for Tensor."""
@@ -86,7 +90,21 @@ def get_raster_image_path(bbox:list, mosaic_date:str, raster_location:int):
             full_roster_path = os.path.join(main_path, raster_path)
             return full_roster_path
 
+def get_coordinate_from_metadata(mosaic_id:str, tiff_id:str):
+    main_path = os.path.join('src','data', 'mosaics')
+    meta_data_path = os.path.join(main_path,'planet_metadata.json')
+
+    #Read metadata
+    with open(meta_data_path, 'r') as f:
+        planet_meta_data = json.load(f)
+
+    for item in planet_meta_data:
+        if item['mosaic_id']==mosaic_id and item['id']==tiff_id:
+            return item['bbox']
+
 def predict_raster_deforestation_category(path:str):
+    MODEL_PREDICTION_URL= os.environ.get('MODEL_PREDICTION_URL')
+    #url = f"https://{MODEL_PREDICTION_URL}/v1/predict_image_label"
     url = "http://35.223.171.201:8020/v1/predict_image_label"
     payload={}
     
@@ -97,6 +115,11 @@ def predict_raster_deforestation_category(path:str):
     response = requests.request("POST", url, headers=headers, data=payload, files=files)
     print(response)
     return response.text
+
+
+    
+
+
 
 
 
