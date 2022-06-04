@@ -184,7 +184,7 @@ class Mosaic():
                         "sqtr_longitude": [coordinates[2]],
                         "sqtr_latitude": [coordinates[3]],
                         "prediction": prediction,
-                        "prediction_stamp":prediction_date,
+                        "predictionTimestamp":prediction_date,
                         "tiff_code": tiff_folder_name,
                         "roster":os.path.basename(roster_path)[:-4],
                         "mosaic": self.id
