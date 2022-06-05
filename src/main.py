@@ -11,20 +11,10 @@ from logging.config import dictConfig
 from app.log_config import log_config 
 import requests
 import io
-class HealthCheckFilter(logging.Filter):
-    def filter(self, record):
-        request_method = record.args[1]
-        query_string = record.args[2] 
-
-        return request_method == 'GET' and not query_string in [
-            "/",
-            "/healthcheck",
-        ]
 
 dictConfig(log_config)
 
-logger = logging.getLogger("planet_api_logger").addFilter(HealthCheckFilter) 
-
+logger = logging.getLogger("planet_api_logger")
 app = FastAPI(
     title='Atforesty Planet Batch Run Service',
     description='This API allows to fetch data from the Planet interface',
@@ -69,8 +59,9 @@ async def check_connection():
     parameters = {
     "name__is" :'planet_medres_normalized_analytic_2022-04_mosaic'
     }
+
     res = session.get(planet_api.api_url, params = parameters)
-    logger.info("Health connection to Planet")
+    logger.info("Health connection to Planet ")
     return {'response':res.status_code,
             'description':'acces confirmed'
     }

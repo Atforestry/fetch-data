@@ -11,6 +11,7 @@ import psycopg2
 
 PLANET_API_KEY = os.environ.get('PLANET_API_KEY')
 PLANET_URL = "https://api.planet.com/basemaps/v1/mosaics"
+DB_URL = os.getenv('DB_URL')
 POSTGRES_DB = os.getenv('POSTGRES_DB')
 POSTGRES_USER = os.getenv('POSTGRES_USER')
 POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
@@ -19,6 +20,7 @@ class PlanetAPI():
     def __init__(self, api_key=PLANET_API_KEY, api_url=PLANET_URL):
         self.api_key = api_key
         self.api_url = api_url
+        print(api_url+" "+api_key)
 
 class Mosaic():
     def __init__(self, name, date, session, url):
@@ -152,7 +154,7 @@ class Mosaic():
         #initialize Datframe
         data = pd.DataFrame(columns=["sqbl_longitude", "sqbl_latitude","sqtr_longitude", "sqtr_latitude", "prediction", "roster", "tiff_code", "mosaic"])
         #create postgres connection
-        conn_string = f'postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@35.223.171.201:5432/{POSTGRES_DB}'
+        conn_string = f'postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{DB_URL}/{POSTGRES_DB}'
         db = create_engine(conn_string)
         conn = db.connect()
         
