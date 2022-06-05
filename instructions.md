@@ -1,6 +1,8 @@
 # Running the Service:
 
-Before running anything, make sure to set up the credentials of PLANET_API_KEY on the .env file
+Before running anything, make sure to set up the credentials of PLANET_API_KEY on the .env file. Also you will need to store the mlops-3-c0ecd4f26897.json credential file under the root of the repository. The docker will use this fill to autheniticate to GCP.
+
+This should be managed via github actions.
 
 After running the **make build and run** commands you should be able to test the api as below
 

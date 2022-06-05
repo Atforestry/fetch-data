@@ -1,3 +1,4 @@
+import subprocess
 import os
 import json
 import numpy as np
@@ -115,6 +116,11 @@ def predict_raster_deforestation_category(path:str):
     response = requests.request("POST", url, headers=headers, data=payload, files=files)
     print(response)
     return response.text
+
+def push_to_gcp():
+    """Push data into GCP bucket"""
+    subprocess.call(["./src/app/gs_push.sh"])
+
 
 
     

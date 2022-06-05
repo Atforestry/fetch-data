@@ -4,13 +4,12 @@ sys.path.insert(1, './src')
 
 from fastapi import FastAPI, status
 from fastapi.responses import HTMLResponse, FileResponse
-from app.utils import get_raster_image_path, predict_raster_deforestation_category
+from app.utils import get_raster_image_path, predict_raster_deforestation_category,push_to_gcp
 from app.views import PlanetAPI, Mosaic
 import logging
 from logging.config import dictConfig
 from app.log_config import log_config 
 import requests
-import io
 
 dictConfig(log_config)
 
@@ -86,6 +85,8 @@ async def fetch_mosaics(mosaic_name:str, date:str, bbox:str):
     #Run Predicitions
     logger.info("Run Predictions") 
     mosaic.run_inference_predictions()  
+    logger.info('Pushing to GCP')
+    push_to_gcp()
     return {'status': 'success'}
 
 @app.get("/v1/get_raster_image")
@@ -103,5 +104,4 @@ async def post_raster_image(bbox:str, date:str, raster_location:int):
     file_path = get_raster_image_path(bbox=bbox, mosaic_date=date, raster_location=raster_location)   
     prediction = predict_raster_deforestation_category(path=file_path)
     return {'prediction': prediction}
-
 
