@@ -11,10 +11,19 @@ from logging.config import dictConfig
 from app.log_config import log_config 
 import requests
 import io
+class HealthCheckFilter(logging.Filter):
+    def filter(self, record):
+        request_method = record.args[1]
+        query_string = record.args[2] 
 
+        return request_method == 'GET' and not query_string in [
+            "/",
+            "/healthcheck",
+        ]
 
 dictConfig(log_config)
-logger = logging.getLogger("planet_api_logger") # should be this name unless you change it in log_config.py
+
+logger = logging.getLogger("planet_api_logger").addFilter(HealthCheckFilter) 
 
 app = FastAPI(
     title='Atforesty Planet Batch Run Service',
@@ -22,9 +31,6 @@ app = FastAPI(
     version="1.0.0")
 
 @app.get('/healthcheck', status_code=status.HTTP_200_OK)
-def perform_healthcheck():
-    logger.info('Healthcheck ok')
-    return {'healthcheck': 'Ok'}
 
 @app.get("/")
 async def main():

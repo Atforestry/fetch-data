@@ -1,4 +1,4 @@
-include .env
+export IMAGE_NAME=fetch-data
 
 build:
 	docker build . -t atforestry/$(IMAGE_NAME)

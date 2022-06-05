@@ -17,6 +17,6 @@ log_config = {
         },
     },
     "loggers": {
-        "planet_api_logger": {"handlers": ["default"], "level": "INFO"},
+        "planet_api_logger": {"handlers": ["default"], "level": "INFO"}, 
     },
 }
