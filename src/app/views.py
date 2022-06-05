@@ -197,7 +197,7 @@ class Mosaic():
                     data.to_csv(os.path.join('src','data','data.csv'), index=False)
 
                     #write to postgres
-                    data.to_sql('data', con=conn, if_exists='append',
+                    data.to_sql('prediction', con=conn, if_exists='append',
                             index=False)
         conn.close()
 
