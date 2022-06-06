@@ -42,6 +42,9 @@ class Mosaic():
 
         #request access to basemaps
         res = self.session.get(url = self.url, params = parameters)
+        print(self.url)
+        print(self.api_name)
+        print(res)
 
         mosaic = res.json()
         mosaic_id = mosaic['mosaics'][0]['id']

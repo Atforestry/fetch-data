@@ -31,7 +31,7 @@ async def main():
     return HTMLResponse(content=content)
 
 @app.on_event("startup")
-async def startup_event():
+def startup_event():
     """Authenticates to Planet API
 
     Raises:
@@ -49,7 +49,7 @@ async def startup_event():
     session.auth = (planet_api.api_key, "")
 
 @app.get("/v1/check_planet_connection")
-async def check_connection():
+def check_connection():
     """Checks connection status tu planet API
 
     Returns:
@@ -66,7 +66,16 @@ async def check_connection():
     }
 
 @app.get("/v1/fetch_mosaics")
-async def fetch_mosaics(mosaic_name:str, date:str, bbox:str):
+def fetch_mosaics():
+    
+    # We fix these variables. If this needs to be changed, 
+    # we can add them to our .env file so we don't need to
+    # change the code.
+
+    mosaic_name = "planet_medres_normalized_analytic"
+    bbox = "-53,-4,-52,-3"
+    date = '2022-04'
+
     mosaic = Mosaic(name = mosaic_name, date=date, session=session, url=planet_api.api_url)
     #Set the mosaic id
     mosaic.set_mosaic_id()
@@ -90,7 +99,7 @@ async def fetch_mosaics(mosaic_name:str, date:str, bbox:str):
     return {'status': 'success'}
 
 @app.get("/v1/get_raster_image")
-async def gest_raster_image(bbox:str, date:str, raster_location:int):
+def gest_raster_image(bbox:str, date:str, raster_location:int):
     bbox=bbox.split(',')
     bbox = [float(i) for i in bbox]
     print(bbox)
@@ -98,7 +107,7 @@ async def gest_raster_image(bbox:str, date:str, raster_location:int):
     return FileResponse(file_path)
 
 @app.post("/v1/predict_raster_image")
-async def post_raster_image(bbox:str, date:str, raster_location:int):
+def post_raster_image(bbox:str, date:str, raster_location:int):
     bbox=bbox.split(',')
     bbox = [float(i) for i in bbox]
     file_path = get_raster_image_path(bbox=bbox, mosaic_date=date, raster_location=raster_location)   

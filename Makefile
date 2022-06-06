@@ -3,7 +3,7 @@ export IMAGE_NAME=fetch-data
 build:
 	docker build . -t atforestry/$(IMAGE_NAME)
 
-run:
+run start:
 	docker-compose up -d --build
 	docker-compose logs -f --tail=20
 

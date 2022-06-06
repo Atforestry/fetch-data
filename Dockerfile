@@ -21,7 +21,8 @@ RUN mkdir -p /usr/local/gcloud \
 ENV PATH $PATH:/usr/local/gcloud/google-cloud-sdk/bin
 
 COPY ./mlops-3-c0ecd4f26897.json .
-COPY ./src ./src
+COPY ./src/app ./src/app
+COPY ./src/main.py ./src
 COPY ./start.sh .
 
 EXPOSE 8000
