@@ -5,9 +5,15 @@ import urllib.request
 from app.utils import generate_raster_png_files, list_files_in_directory, predict_raster_deforestation_category, get_coordinate_from_metadata
 import pandas as pd
 import datetime
+from dateutil.relativedelta import relativedelta
 from sqlalchemy import create_engine
 import psycopg2
+import logging
+from logging.config import dictConfig
+from app.log_config import log_config 
 
+dictConfig(log_config)
+logger = logging.getLogger("planet_api_logger")
 
 PLANET_API_KEY = os.environ.get('PLANET_API_KEY')
 PLANET_URL = "https://api.planet.com/basemaps/v1/mosaics"
@@ -23,32 +29,44 @@ class PlanetAPI():
         print(api_url+" "+api_key)
 
 class Mosaic():
-    def __init__(self, name, date, session, url):
+    def __init__(self, name, session, url):
         self.name = name
-        self.date = date
         self.session = session
         self.url = url
-        self.api_name = name + '_'+ str(date)+ '_mosaic'
+        self.api_name = name + '_date_mosaic'
 
     def set_mosaic_id(self):
         """
         Returns mosaic_id if exists
         """
 
-        #create headers
-        parameters = {
-        "name__is" :self.api_name
-        }
+        firstDay = datetime.date.today().replace(day=1)
+        
+        while True:
+            logger.info("Searching for mosaic id firstDay = " + firstDay.strftime("%Y-%m-%d"))
+            yearMonth = firstDay.strftime('%Y-%m')
+            self.api_name = self.name + '_' + yearMonth + '_mosaic'
 
-        #request access to basemaps
-        res = self.session.get(url = self.url, params = parameters)
-        print(self.url)
-        print(self.api_name)
-        print(res)
+            #create headers
+            parameters = {
+            "name__is" :self.api_name
+            }
 
-        mosaic = res.json()
+            #request access to basemaps
+            res = self.session.get(url = self.url, params = parameters)
+
+            mosaic = res.json()
+            print(str(mosaic))
+
+            if len(mosaic['mosaics']) > 0:
+                self.date = yearMonth
+                break
+            else:
+                firstDay = firstDay - relativedelta(months=1)
+
         mosaic_id = mosaic['mosaics'][0]['id']
         self.id = mosaic_id
+        logger.info('Mosaic found. Mosaic id = ' + str(mosaic_id))
         return None
     
     def get_quads_from_mosaic(self, bbox:str):

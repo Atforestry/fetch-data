@@ -12,8 +12,8 @@ from app.log_config import log_config
 import requests
 
 dictConfig(log_config)
-
 logger = logging.getLogger("planet_api_logger")
+
 app = FastAPI(
     title='Atforesty Planet Batch Run Service',
     description='This API allows to fetch data from the Planet interface',
@@ -56,7 +56,7 @@ def check_connection():
         res.status_code: Response should be 200
     """    
     parameters = {
-    "name__is" :'planet_medres_normalized_analytic_2022-04_mosaic'
+    "name__is" :'planet_medres_normalized_analytic_1month_mosaic'
     }
 
     res = session.get(planet_api.api_url, params = parameters)
@@ -74,9 +74,8 @@ def fetch_mosaics():
 
     mosaic_name = "planet_medres_normalized_analytic"
     bbox = "-53,-4,-52,-3"
-    date = '2022-04'
 
-    mosaic = Mosaic(name = mosaic_name, date=date, session=session, url=planet_api.api_url)
+    mosaic = Mosaic(name = mosaic_name, session=session, url=planet_api.api_url)
     #Set the mosaic id
     mosaic.set_mosaic_id()
     #Get the quads
