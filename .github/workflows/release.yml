@@ -12,7 +12,7 @@ env:
   FETCH_DATA_URL: "fetch-data.default.svc.cluster.local:8000"
   BATCH_RUN_URL: "batch-run.default.svc.cluster.local:8000"
   MODEL_PREDICTION_URL: "model-prediction.default.svc.cluster.local:8000"
-  API_URL: "api.atforestry.com"
+  API_URL: "api.default.svc.cluster.local"
   DB_URL: "postgres.default.svc.cluster.local"
   POSTGRES_DB: "atforestry"
   POSTGRES_USER: "postgres"
@@ -21,9 +21,9 @@ env:
   PLANET_API_KEY: "${{secrets.PLANET_API_KEY}}"
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
   ARTIFACT_REPO: atforestry-repo
-  GKE_CLUSTER: atforestry-cluster    # Add your cluster name here.
-  GCP_ZONE: us-central1   # Add your cluster zone here.
-  DEPLOYMENT_NAME: fetch-data # Add your deployment name here.
+  GKE_CLUSTER: atforestry-cluster
+  GCP_ZONE: us-central1
+  DEPLOYMENT_NAME: fetch-data
   IMAGE_NAME: fetch-data
 
 jobs:
@@ -60,6 +60,7 @@ jobs:
         echo "${{secrets.GOOGLE_APPLICATION_CREDENTIALS }}" > ./google.json
         docker build \
           --tag "$GCP_ZONE-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REPO/$IMAGE_NAME:$GITHUB_SHA" \
+          --build-arg PLANET_API_KEY \
           --build-arg FETCH_DATA_URL \
           --build-arg BATCH_RUN_URL \
           --build-arg MODEL_PREDICTION_URL \
@@ -67,8 +68,8 @@ jobs:
           --build-arg DB_URL \
           --build-arg DB_USER \
           --build-arg DB_PASSWORD \
-          --build-arg PLANET_API_KEY \
           .
+        docker images
 
     # Push the Docker image to Google Container Registry
     - name: Publish
@@ -78,4 +79,4 @@ jobs:
     # Deploy the Docker image to the GKE cluster
     - name: Deploy
       run: |-
-        kubectl set image deployment $IMAGE_NAME $IMAGE_NAME=$GCP_ZONE-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REPO/$IMAGE_NAME:$GITHUB_SHA
+        kubectl set image deployment/$IMAGE_NAME $IMAGE_NAME=$GCP_ZONE-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REPO/$IMAGE_NAME:$GITHUB_SHA
