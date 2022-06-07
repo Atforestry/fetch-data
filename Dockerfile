@@ -40,7 +40,7 @@ RUN mkdir -p /usr/local/gcloud \
 # Adding the package path to local
 ENV PATH $PATH:/usr/local/gcloud/google-cloud-sdk/bin
 
-COPY ./mlops-3-c0ecd4f26897.json .
+COPY ./google.json .
 COPY ./src/app ./src/app
 COPY ./src/main.py ./src
 COPY ./start.sh .
