@@ -25,7 +25,7 @@ app = FastAPI(
 async def main():
     content = """
 <body>
-<p>Atforestry Planet Batch Run!!</p>
+<p>Atforestry Planet Fetch Data!!</p>
 </body>
     """
     return HTMLResponse(content=content)

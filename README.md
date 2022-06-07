@@ -4,7 +4,7 @@ This is the footprint we can use to start any service based on python from. It's
 # Instructions
 * This template is created as a template. Selected this template when creating a new repository.
 * Edit the .env file and adjust variables accordingly. 
-* Add a new file called .env_key with the Planet API API Key (variable should be: PLANET_API_KEY)
+* Add a new file called .env_key in the root folder with the Planet API Key (variable should be: PLANET_API_KEY)
 * Create a Python environment locally and install only the necessary libraries to keep the image as small as possible.
 * Review Dockerfile to select the most appropriate image. Now we are using Python:3 (pretty slim!)
 * Use make <COMMAND> to work with this repository:

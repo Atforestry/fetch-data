@@ -1,6 +1,23 @@
 version: "3.9"
 services:
-  service:
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_DB=atforestry
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres    
+    ports:
+      - '5432:5432'
+    volumes: 
+      - db:/var/lib/postgresql/data
+      - ../infrastructure/db/schema.sql:/docker-entrypoint-initdb.d/create_tables.sql     
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5   
+  fetch-data:
     build: .
     image: "atforestry/${IMAGE_NAME}"
     ports:
@@ -8,5 +25,10 @@ services:
     volumes:
       - ./src:/app/src
     env_file:
-      - ./.env
       - ./.env_key
+    depends_on:
+      db:
+        condition: service_healthy         
+volumes:
+  db:
+    driver: local        
