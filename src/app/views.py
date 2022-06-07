@@ -40,9 +40,18 @@ class Mosaic():
         Returns mosaic_id if exists
         """
 
+        #create postgres connection
+
+        conn = psycopg2.connect(
+            host=os.environ['DB_URL'],
+            database=os.environ['POSTGRES_DB'],
+            user=os.environ['POSTGRES_USER'],
+            password=os.environ['POSTGRES_PASSWORD'])
+                    
         firstDay = datetime.date.today().replace(day=1)
         
-        while True:
+        i = 10
+        while i > 0:
             logger.info("Searching for mosaic id firstDay = " + firstDay.strftime("%Y-%m-%d"))
             yearMonth = firstDay.strftime('%Y-%m')
             self.api_name = self.name + '_' + yearMonth + '_mosaic'
@@ -60,13 +69,26 @@ class Mosaic():
 
             if len(mosaic['mosaics']) > 0:
                 self.date = yearMonth
-                break
+
+                cur = conn.cursor()
+
+                cur.execute(f'SELECT * FROM prediction WHERE predictiontimestamp = \'{firstDay} 00:00:00\'') 
+                rows = cur.fetchall()
+
+                if len(rows) == 0:
+                    break 
+                else:
+                    firstDay = firstDay - relativedelta(months=1)    
             else:
                 firstDay = firstDay - relativedelta(months=1)
+            i = i - 1
 
         mosaic_id = mosaic['mosaics'][0]['id']
         self.id = mosaic_id
         logger.info('Mosaic found. Mosaic id = ' + str(mosaic_id))
+
+        conn.close()
+
         return None
     
     def get_quads_from_mosaic(self, bbox:str):

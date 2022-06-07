@@ -1,0 +1,80 @@
+name: Releases the
+
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
+
+env: 
+  FETCH_DATA_URL: "fetch-data.default.svc.cluster.local:8000"
+  BATCH_RUN_URL: "batch-run.default.svc.cluster.local:8000"
+  MODEL_PREDICTION_URL: "model-prediction.default.svc.cluster.local:8000"
+  API_URL: "api.atforestry.com"
+  DB_URL: "postgres.default.svc.cluster.local"
+  POSTGRES_DB: "atforestry"
+  POSTGRES_USER: "postgres"
+  POSTGRES_PASSWORD: "${{ secrets.POSTGRES_PASSWORD }}"
+  GOOGLE_APPLICATION_CREDENTIALS: "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}"
+  PLANET_API_KEY: "${{secrets.PLANET_API_KEY}}"
+  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
+  ARTIFACT_REPO: atforestry-repo
+  GKE_CLUSTER: atforestry-cluster    # Add your cluster name here.
+  GCP_ZONE: us-central1   # Add your cluster zone here.
+  DEPLOYMENT_NAME: fetch-data # Add your deployment name here.
+  IMAGE_NAME: fetch-data
+
+jobs:
+  setup-build-publish-deploy:
+    name: Setup, Build, Publish, and Deploy
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    # Setup gcloud CLI
+    - uses: google-github-actions/setup-gcloud@94337306dda8180d967a56932ceb4ddcf01edae7
+      with:
+        service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+        project_id: ${{ secrets.GKE_PROJECT }}
+
+    # Configure Docker to use the gcloud command-line tool as a credential
+    # helper for authentication
+    - run: |-
+        gcloud --quiet auth configure-docker $GCP_ZONE-docker.pkg.dev
+
+    # Get the GKE credentials so we can deploy to the cluster
+    - uses: google-github-actions/get-gke-credentials@fb08709ba27618c31c09e014e1d8364b02e5042e
+      with:
+        cluster_name: ${{ env.GKE_CLUSTER }}
+        location: ${{ env.GCP_ZONE }}
+        credentials: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+
+    # Build the Docker image
+    - name: Build
+      run: |-
+        docker build \
+          --tag "$GCP_ZONE-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REPO/$IMAGE_NAME:$GITHUB_SHA" \
+          --build-arg FETCH_DATA_URL \
+          --build-arg BATCH_RUN_URL \
+          --build-arg MODEL_PREDICTION_URL \
+          --build-arg API_URL \
+          --build-arg DB_URL \
+          --build-arg DB_USER \
+          --build-arg DB_PASSWORD \
+          --build-arg PLANET_API_KEY \
+          .
+
+    # Push the Docker image to Google Container Registry
+    - name: Publish
+      run: |-
+        docker push $GCP_ZONE-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REPO/$IMAGE_NAME:$GITHUB_SHA
+
+    # Deploy the Docker image to the GKE cluster
+    - name: Deploy
+      run: |-
+        kubectl set image deployment $IMAGE_NAME $IMAGE_NAME=$GCP_ZONE-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REPO/$IMAGE_NAME:$GITHUB_SHA
