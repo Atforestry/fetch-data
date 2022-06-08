@@ -6,7 +6,6 @@ from app.utils import generate_raster_png_files, list_files_in_directory, predic
 import pandas as pd
 import datetime
 from dateutil.relativedelta import relativedelta
-from sqlalchemy import create_engine
 import psycopg2
 import logging
 from logging.config import dictConfig
@@ -201,6 +200,15 @@ class Mosaic():
         conn_string = f'postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{DB_URL}/{POSTGRES_DB}'
         db = create_engine(conn_string)
         conn = db.connect()
+
+        conn = psycopg2.connect(
+            host=DB_URL,
+            port=5432,
+            user=POSTGRES_USER,
+            password=POSTGRES_PASSWORD,
+            database=POSTGRES_DB) 
+
+        cursor = conn.cursor()
         
         #list tiff folfers in mosaic folders
         tiff_folders = os.listdir(os.path.join(main_path,self.id))
@@ -240,9 +248,12 @@ class Mosaic():
                     #write to dataframe
                     data.to_csv(os.path.join('src','data','data.csv'), index=False)
 
-                    #write to postgres
-                    data.to_sql('prediction', con=conn, if_exists='append',
-                            index=False)
+                    for (idx, row) in data.iterrows():
+                        cursor.execute("INSERT INTO prediction (sqbl_longitude, sqbl_latitude, sqtr_longitude, sqtr_latitude, prediction, predictiontimestamp, tiff_code, roster, mosaic) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)", 
+                        (row['sqbl_longitude'], row['sqbl_latitude'], row['sqtr_longitude'], row['sqtr_latitude'], row['prediction'], row['predictiontimestamp'], row['tiff_code'], row['roster'], row['mosaic']))
+                    
+        conn.commit()
+        cursor.close()    
         conn.close()
 
 
