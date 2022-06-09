@@ -196,10 +196,6 @@ class Mosaic():
         main_path = os.path.join('src','data', 'mosaics')
         #initialize Datframe
         data = pd.DataFrame(columns=["sqbl_longitude", "sqbl_latitude","sqtr_longitude", "sqtr_latitude", "prediction", "roster", "tiff_code", "mosaic"])
-        #create postgres connection
-        conn_string = f'postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{DB_URL}/{POSTGRES_DB}'
-        db = create_engine(conn_string)
-        conn = db.connect()
 
         conn = psycopg2.connect(
             host=DB_URL,
