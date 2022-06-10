@@ -158,7 +158,7 @@ class Mosaic():
 
         return None
 
-    def download_quads_tiff(self, path:str=os.path.join('src','data','mosaics'))->bool:
+    def download_quads_tiff(self, path:str=os.path.join('./','src','data','mosaics'))->bool:
         
         print(os.getcwd())
 
