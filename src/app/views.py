@@ -158,13 +158,13 @@ class Mosaic():
 
         return None
 
-    def download_quads_tiff(self, path:str=os.path.join('./','src','data','mosaics'))->bool:
+    def download_quads_tiff(self, path:str=os.path.join('src','data','mosaics'))->bool:
         
         print(os.getcwd())
 
         #check if directory exists, if not create it
         if not os.path.exists(path):
-                os.mkdir(path)
+                os.makedirs(path)
 
         #Create directory with mosaic_name
         if not os.path.exists(os.path.join(path,self.id)):
