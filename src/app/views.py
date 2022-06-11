@@ -188,6 +188,7 @@ class Mosaic():
     def generate_raster_files(self):
         tiff_files = list_files_in_directory(os.path.join('src','data','mosaics',self.id))
         for tiff_file in tiff_files:
+            logger.info('Generating raster file for ' + tiff_file)
             generate_raster_png_files(tiff_file=tiff_file,mosaic_code=self.id, path='src/data/mosaics/')
         return None
 
@@ -216,7 +217,9 @@ class Mosaic():
                 for roster in list_files_in_directory(os.path.join(main_path, self.id, tiff_folder_name)):
                     
                     roster_path = os.path.join(main_path, self.id, tiff_folder_name, roster)
+                    logger.info('Predicting '+roster_path)
                     prediction = predict_raster_deforestation_category(path=roster_path)
+                    logger.info('prediction = '+prediction)
                     
                     # coordinates
 
@@ -245,6 +248,7 @@ class Mosaic():
                     data.to_csv(os.path.join('src','data','data.csv'), index=False)
 
                     for (idx, row) in data.iterrows():
+                        logger.info('Inserting into database roster='+row['roster']+' prediction='+row['prediction']+' tiff_code='+row['tiff_code']+' mosaic='+row['mosaic'])
                         cursor.execute("INSERT INTO prediction (sqbl_longitude, sqbl_latitude, sqtr_longitude, sqtr_latitude, prediction, predictiontimestamp, tiff_code, roster, mosaic) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)", 
                         (row['sqbl_longitude'], row['sqbl_latitude'], row['sqtr_longitude'], row['sqtr_latitude'], row['prediction'], row['predictiontimestamp'], row['tiff_code'], row['roster'], row['mosaic']))
                     
