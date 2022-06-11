@@ -104,8 +104,8 @@ def get_coordinate_from_metadata(mosaic_id:str, tiff_id:str):
             return item['bbox']
 
 def predict_raster_deforestation_category(path:str):
-    MODEL_PREDICTION_URL= os.environ.get('MODEL_PREDICTION_URL')
-    url = f"http://{MODEL_PREDICTION_URL}/v1/predict_image_label"
+    MODEL_PREDICT_URL= os.environ.get('MODEL_PREDICT_URL')
+    url = f"http://{MODEL_PREDICT_URL}/v1/predict_image_label"
     #url = "http://35.223.171.201:8020/v1/predict_image_label"
     payload={}
     
