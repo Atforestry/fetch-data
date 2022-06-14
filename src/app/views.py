@@ -10,6 +10,7 @@ import psycopg2
 import logging
 from logging.config import dictConfig
 from app.log_config import log_config 
+from io import StringIO
 
 dictConfig(log_config)
 logger = logging.getLogger("planet_api_logger")
@@ -247,10 +248,19 @@ class Mosaic():
                     #write to dataframe
                     data.to_csv(os.path.join('src','data','data.csv'), index=False)
 
+                    f = StringIO()
+                    items = []
+
                     for (idx, row) in data.iterrows():
-                        logger.info('Inserting into database roster='+row['roster']+' prediction='+row['prediction']+' tiff_code='+row['tiff_code']+' mosaic='+row['mosaic'])
-                        cursor.execute("INSERT INTO prediction (sqbl_longitude, sqbl_latitude, sqtr_longitude, sqtr_latitude, prediction, predictiontimestamp, tiff_code, roster, mosaic) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)", 
-                        (row['sqbl_longitude'], row['sqbl_latitude'], row['sqtr_longitude'], row['sqtr_latitude'], row['prediction'], row['predictionTimestamp'], row['tiff_code'], row['roster'], row['mosaic']))
+                        value = (row['sqbl_longitude'], row['sqbl_latitude'], row['sqtr_longitude'], row['sqtr_latitude'], row['prediction'], row['predictiontimestamp'], row['tiff_code'], row['roster'], row['mosaic'])
+                        items.append('\t'.join(map(str, value))+'\n')
+
+                    f.writelines(items)
+                    f.seek(0)
+
+                    cursor.copy_from(f, 'prediction', columns=('sqbl_longitude', 'sqbl_latitude', 'sqtr_longitude', 'sqtr_latitude', 'prediction', 'predictiontimestamp', 'tiff_code', 'roster', 'mosaic'))
+
+                    f.close()
                     
         conn.commit()
         cursor.close()    
