@@ -1,7 +1,7 @@
 # Fetch-Data Service
 This is the footprint we can use to start any service based on python from. It's optional but will save us a lot of time.
 
-# Instructions
+# Instructions 
 * This template is created as a template. Selected this template when creating a new repository.
 * Edit the .env file and adjust variables accordingly. 
 * Add a new file called .env_key in the root folder with the Planet API Key (variable should be: PLANET_API_KEY)
