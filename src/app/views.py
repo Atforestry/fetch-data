@@ -252,13 +252,13 @@ class Mosaic():
                     items = []
 
                     for (idx, row) in data.iterrows():
-                        value = (row['sqbl_longitude'], row['sqbl_latitude'], row['sqtr_longitude'], row['sqtr_latitude'], row['prediction'], row['predictiontimestamp'], row['tiff_code'], row['roster'], row['mosaic'])
+                        value = (row['sqbl_longitude'], row['sqbl_latitude'], row['sqtr_longitude'], row['sqtr_latitude'], row['prediction'], row['predictionTimestamp'], row['tiff_code'], row['roster'], row['mosaic'])
                         items.append('\t'.join(map(str, value))+'\n')
 
                     f.writelines(items)
                     f.seek(0)
 
-                    cursor.copy_from(f, 'prediction', columns=('sqbl_longitude', 'sqbl_latitude', 'sqtr_longitude', 'sqtr_latitude', 'prediction', 'predictiontimestamp', 'tiff_code', 'roster', 'mosaic'))
+                    cursor.copy_from(f, 'prediction', columns=('sqbl_longitude', 'sqbl_latitude', 'sqtr_longitude', 'sqtr_latitude', 'prediction', 'predictionTimestamp', 'tiff_code', 'roster', 'mosaic'))
 
                     f.close()
                     
