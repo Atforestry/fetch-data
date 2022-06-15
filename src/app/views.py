@@ -137,7 +137,7 @@ class Mosaic():
 
         #check if directory exists, if not create it
         if not os.path.exists(path):
-                os.mkdir(path)
+                os.makedirs(path)
 
         data_path = os.path.join(path,'planet_metadata.json')
 
@@ -169,7 +169,7 @@ class Mosaic():
 
         #Create directory with mosaic_name
         if not os.path.exists(os.path.join(path,self.id)):
-                os.mkdir(os.path.join(path,self.id))
+                os.makedirs(os.path.join(path,self.id))
 
         items = self.quads['items']
 
