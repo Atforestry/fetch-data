@@ -207,6 +207,8 @@ class Mosaic():
             database=POSTGRES_DB) 
 
         cursor = conn.cursor()
+
+        cursor.execute("SELECT setval('prediction_id_seq', (SELECT max(id) FROM prediction))")
         
         #list tiff folfers in mosaic folders
         tiff_folders = os.listdir(os.path.join(main_path,self.id))
