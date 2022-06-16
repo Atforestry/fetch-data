@@ -199,17 +199,6 @@ class Mosaic():
         #initialize Datframe
         data = pd.DataFrame(columns=["sqbl_longitude", "sqbl_latitude","sqtr_longitude", "sqtr_latitude", "prediction", "roster", "tiff_code", "mosaic"])
 
-        conn = psycopg2.connect(
-            host=DB_URL,
-            port=5432,
-            user=POSTGRES_USER,
-            password=POSTGRES_PASSWORD,
-            database=POSTGRES_DB) 
-
-        cursor = conn.cursor()
-
-        cursor.execute("SELECT setval('prediction_id_seq', (SELECT max(id) FROM prediction))")
-        
         #list tiff folfers in mosaic folders
         tiff_folders = os.listdir(os.path.join(main_path,self.id))
 
@@ -247,26 +236,39 @@ class Mosaic():
                     })
 
                     data = pd.concat([data, entry], ignore_index=True)
-                    #write to dataframe
-                    data.to_csv(os.path.join('src','data','data.csv'), index=False)
 
-                    f = StringIO()
-                    items = []
+        conn = psycopg2.connect(
+            host=DB_URL,
+            port=5432,
+            user=POSTGRES_USER,
+            password=POSTGRES_PASSWORD,
+            database=POSTGRES_DB) 
 
-                    for (idx, row) in data.iterrows():
-                        value = (row['sqbl_longitude'], row['sqbl_latitude'], row['sqtr_longitude'], row['sqtr_latitude'], row['prediction'], row['predictiontimestamp'], row['tiff_code'], row['roster'], row['mosaic'])
-                        items.append('\t'.join(map(str, value))+'\n')
+        #write to dataframe
+        data.to_csv(os.path.join('src','data','data.csv'), index=False)
 
-                    f.writelines(items)
-                    f.seek(0)
+        cursor = conn.cursor()
+        cursor.execute("SELECT setval('prediction_id_seq', (SELECT max(id) FROM prediction))")
+        
+        f = StringIO()
+        items = []
 
-                    cursor.copy_from(f, 'prediction', columns=('sqbl_longitude', 'sqbl_latitude', 'sqtr_longitude', 'sqtr_latitude', 'prediction', 'predictiontimestamp', 'tiff_code', 'roster', 'mosaic'))
+        for (idx, row) in data.iterrows():
+            value = (row['sqbl_longitude'], row['sqbl_latitude'], row['sqtr_longitude'], row['sqtr_latitude'], row['prediction'], row['predictiontimestamp'], row['tiff_code'], row['roster'], row['mosaic'])
+            items.append('\t'.join(map(str, value))+'\n')
 
-                    f.close()
-                    
+        f.writelines(items)
+        f.seek(0)
+
+        cursor.copy_from(f, 'prediction', columns=('sqbl_longitude', 'sqbl_latitude', 'sqtr_longitude', 'sqtr_latitude', 'prediction', 'predictiontimestamp', 'tiff_code', 'roster', 'mosaic'))
+
+        f.close()
+
         conn.commit()
         cursor.close()    
+                    
         conn.close()
+                    
 
 
                     
