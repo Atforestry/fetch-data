@@ -100,7 +100,7 @@ def get_coordinate_from_metadata(mosaic_id:str, tiff_id:str):
         planet_meta_data = json.load(f)
 
     for item in planet_meta_data:
-        if item['mosaic_id']==mosaic_id and item['id']==tiff_id:
+        if item.has_key('mosaic_id') and item['mosaic_id']==mosaic_id and item.has_key('id') and item['id']==tiff_id:
             return item['bbox']
 
 def predict_raster_deforestation_category(path:str):
