@@ -113,3 +113,8 @@ def post_raster_image(bbox:str, date:str, raster_location:int):
     prediction = predict_raster_deforestation_category(path=file_path)
     return {'prediction': prediction}
 
+@app.get("/v1/push_to_gcp")
+def pushtogcp(): 
+    push_to_gcp()
+    return {'res': 'ok'}
+

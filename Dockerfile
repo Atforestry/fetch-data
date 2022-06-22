@@ -42,7 +42,7 @@ RUN mkdir -p /usr/local/gcloud \
 # Adding the package path to local
 ENV PATH $PATH:/usr/local/gcloud/google-cloud-sdk/bin
 
-COPY ./google.json ./src
+COPY ./google.json .
 COPY ./src/app ./src/app
 COPY ./src/main.py ./src
 COPY ./start.sh .
