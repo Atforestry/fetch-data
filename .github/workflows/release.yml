@@ -4,12 +4,6 @@ on:
   push:
     branches:
     - main
-  workflow_dispatch: 
-    inputs:
-      reason: 
-        description: Why to run this?
-        required: false
-        default: running CT    
   pull_request:
     branches:
     - main
