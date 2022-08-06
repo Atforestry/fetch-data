@@ -94,7 +94,7 @@ def fetch_mosaics():
     logger.info("Run Predictions") 
     mosaic.run_inference_predictions()  
     logger.info('Pushing to GCP')
-    push_to_gcp()
+    push_to_gcp() 
     return {'status': 'success'}
 
 @app.get("/v1/get_raster_image")
