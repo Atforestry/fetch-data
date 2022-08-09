@@ -67,7 +67,6 @@ jobs:
           --build-arg DB_URL \
           --build-arg DB_USER \
           --build-arg DB_PASSWORD \
-          --build-arg PLANET_API_KEY \
           --build-arg GOOGLE_APPLICATION_CREDENTIALS \
           .
 
