@@ -121,7 +121,7 @@ def predict_raster_deforestation_category(path:str):
 
 def push_to_gcp():
     """Push data into GCP bucket"""
-    !gcloud auth activate-service-account atforestry@atforestry.iam.gserviceaccount.com --key-file=/app/google.json --project=atforestry && gsutil -m cp -r /app/src/data/mosaics/ gs://atforestry-model-tracker/planet_data
+    subprocess.call(["/app/src/app/gs_push.sh"])
 
 
 
