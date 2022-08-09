@@ -14,20 +14,6 @@ from io import StringIO
 
 dictConfig(log_config)
 logger = logging.getLogger("planet_api_logger")
-
-PLANET_API_KEY = os.environ.get('PLANET_API_KEY')
-PLANET_URL = "https://api.planet.com/basemaps/v1/mosaics"
-DB_URL = os.getenv('DB_URL')
-POSTGRES_DB = os.getenv('POSTGRES_DB')
-POSTGRES_USER = os.getenv('POSTGRES_USER')
-POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
-
-conn = psycopg2.connect(
-    host=DB_URL,
-    port=5432,
-    user=POSTGRES_USER,
-    password=POSTGRES_PASSWORD,
-    database=POSTGRES_DB) 
 class PlanetAPI():
     def __init__(self, api_key=PLANET_API_KEY, api_url=PLANET_URL):
         self.api_key = api_key
@@ -46,6 +32,8 @@ class Mosaic():
         """
         Returns mosaic_id if exists
         """
+
+        global comn
 
         #create postgres connection
 
@@ -194,6 +182,7 @@ class Mosaic():
         return None
 
     def run_inference_predictions(self):
+        global conn
         #Get path
         main_path = os.path.join('src','data', 'mosaics')
         #initialize Datframe

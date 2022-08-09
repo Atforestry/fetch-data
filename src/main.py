@@ -19,6 +19,20 @@ app = FastAPI(
     description='This API allows to fetch data from the Planet interface',
     version="1.0.0")
 
+PLANET_API_KEY = os.environ.get('PLANET_API_KEY')
+PLANET_URL = "https://api.planet.com/basemaps/v1/mosaics"
+DB_URL = os.getenv('DB_URL')
+POSTGRES_DB = os.getenv('POSTGRES_DB')
+POSTGRES_USER = os.getenv('POSTGRES_USER')
+POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
+
+conn = psycopg2.connect(
+    host=DB_URL,
+    port=5432,
+    user=POSTGRES_USER,
+    password=POSTGRES_PASSWORD,
+    database=POSTGRES_DB) 
+
 @app.get('/healthcheck', status_code=status.HTTP_200_OK)
 
 @app.get("/")

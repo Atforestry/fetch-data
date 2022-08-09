@@ -100,7 +100,6 @@ def get_coordinate_from_metadata(mosaic_id:str, tiff_id:str):
         planet_meta_data = json.load(f)
 
     for item in planet_meta_data:
-        print("**** get_coordinate_from_metadta")
         if 'id' in item and item['id']==tiff_id:
             return item['bbox']
 
