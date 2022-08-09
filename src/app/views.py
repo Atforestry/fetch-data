@@ -22,6 +22,12 @@ POSTGRES_DB = os.getenv('POSTGRES_DB')
 POSTGRES_USER = os.getenv('POSTGRES_USER')
 POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
 
+conn = psycopg2.connect(
+    host=DB_URL,
+    port=5432,
+    user=POSTGRES_USER,
+    password=POSTGRES_PASSWORD,
+    database=POSTGRES_DB) 
 class PlanetAPI():
     def __init__(self, api_key=PLANET_API_KEY, api_url=PLANET_URL):
         self.api_key = api_key
@@ -43,12 +49,6 @@ class Mosaic():
 
         #create postgres connection
 
-        conn = psycopg2.connect(
-            host=os.environ['DB_URL'],
-            database=os.environ['POSTGRES_DB'],
-            user=os.environ['POSTGRES_USER'],
-            password=os.environ['POSTGRES_PASSWORD'])
-                    
         firstDay = datetime.date.today().replace(day=1)
         
         i = 10
@@ -88,8 +88,6 @@ class Mosaic():
         self.id = mosaic_id
         logger.info('Mosaic found. Mosaic id = ' + str(mosaic_id))
 
-        conn.close()
-
         return None
     
     def get_quads_from_mosaic(self, bbox:str):
@@ -111,15 +109,18 @@ class Mosaic():
         'minimal': True
         }
         #accessing quads using metadata from mosaic
-        quads_url = "{}/{}/quads".format(self.url, self.id)
+        quads_url = "{}/{}/quads".format(self.url, self.id) 
         res = self.session.get(quads_url, params=search_parameters, stream=True)
         quads = res.json()
+        quads['items'] = quads['items'][0:3]
+
         #Store Mosaic metadata data
         for quad in quads['items']:
             quad['mosaic_id']=self.id
             quad['master_bbox']=self.bbox
             quad['mosaic_name']=self.name
             quad['mosaic_date']=self.date
+            break
 
         self.quads=quads
         return None
@@ -223,11 +224,23 @@ class Mosaic():
                     date_list = date.split('-')
                     prediction_date = datetime.date(year=int(date_list[0]),month=int(date_list[1]),day=1)
 
+                    if not coordinates:
+                        print("******* NO COORDINATES *******")
+                        bl_lng = 0
+                        bl_lat = 0
+                        tr_lng = 0
+                        tr_lat = 0
+                    else:
+                        bl_lng = coordinates[0]
+                        bl_lat = coordinates[1]
+                        tr_lng = coordinates[2]
+                        tr_lat = coordinates[3]
+
                     entry = pd.DataFrame.from_dict({
-                        "sqbl_longitude": [coordinates[0]],
-                        "sqbl_latitude": [coordinates[1]],
-                        "sqtr_longitude": [coordinates[2]],
-                        "sqtr_latitude": [coordinates[3]],
+                        "sqbl_longitude": [bl_lng],
+                        "sqbl_latitude": [bl_lat],
+                        "sqtr_longitude": [tr_lng],
+                        "sqtr_latitude": [tr_lat],
                         "prediction": prediction,
                         "predictiontimestamp":prediction_date,
                         "tiff_code": tiff_folder_name,
@@ -236,13 +249,6 @@ class Mosaic():
                     })
 
                     data = pd.concat([data, entry], ignore_index=True)
-
-        conn = psycopg2.connect(
-            host=DB_URL,
-            port=5432,
-            user=POSTGRES_USER,
-            password=POSTGRES_PASSWORD,
-            database=POSTGRES_DB) 
 
         #write to dataframe
         data.to_csv(os.path.join('src','data','data.csv'), index=False)
@@ -267,7 +273,6 @@ class Mosaic():
         conn.commit()
         cursor.close()    
                     
-        conn.close()
                     
 
 

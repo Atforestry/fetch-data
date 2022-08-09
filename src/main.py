@@ -80,14 +80,14 @@ def fetch_mosaics():
     mosaic.set_mosaic_id()
     #Get the quads
     mosaic.get_quads_from_mosaic(bbox=bbox)
-    logger.info("Requesting quads tiffs")
     #Download quads
+    logger.info("Requesting quads tiffs")
     mosaic.download_quads_tiff()
-    logger.info("Pushing metadata")
     #Store metadata
+    logger.info("Pushing metadata")
     mosaic.store_quads_metadata()   
-    logger.info("Converting tiff to rgb files")    
     #Store rgb rasters
+    logger.info("Converting tiff to rgb files")    
     mosaic.generate_raster_files()
     logger.info("Files Generated")   
     #Run Predicitions
