@@ -112,7 +112,7 @@ class Mosaic():
         quads_url = "{}/{}/quads".format(self.url, self.id) 
         res = self.session.get(quads_url, params=search_parameters, stream=True)
         quads = res.json()
-        quads['items'] = quads['items'][0:3]
+        quads['items'] = quads['items'][0:1]
 
         #Store Mosaic metadata data
         for quad in quads['items']:
