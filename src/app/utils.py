@@ -101,7 +101,6 @@ def get_coordinate_from_metadata(mosaic_id:str, tiff_id:str):
 
     for item in planet_meta_data:
         print("**** get_coordinate_from_metadta")
-        print(item)
         if 'id' in item and item['id']==tiff_id:
             return item['bbox']
 

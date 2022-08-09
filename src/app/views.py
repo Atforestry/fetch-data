@@ -112,7 +112,6 @@ class Mosaic():
         quads_url = "{}/{}/quads".format(self.url, self.id) 
         res = self.session.get(quads_url, params=search_parameters, stream=True)
         quads = res.json()
-        quads['items'] = quads['items'][0:1]
 
         #Store Mosaic metadata data
         for quad in quads['items']:
@@ -120,8 +119,6 @@ class Mosaic():
             quad['master_bbox']=self.bbox
             quad['mosaic_name']=self.name
             quad['mosaic_date']=self.date
-            print(">>>>")
-            print(quad)
             break
 
         self.quads=quads
@@ -227,7 +224,6 @@ class Mosaic():
                     prediction_date = datetime.date(year=int(date_list[0]),month=int(date_list[1]),day=1)
 
                     if not coordinates:
-                        print("******* NO COORDINATES *******")
                         bl_lng = 0
                         bl_lat = 0
                         tr_lng = 0
