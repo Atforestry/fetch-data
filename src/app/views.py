@@ -120,6 +120,8 @@ class Mosaic():
             quad['master_bbox']=self.bbox
             quad['mosaic_name']=self.name
             quad['mosaic_date']=self.date
+            print(">>>>")
+            print(quad)
             break
 
         self.quads=quads
