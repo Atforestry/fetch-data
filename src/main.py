@@ -46,6 +46,8 @@ async def main():
 
 @app.on_event("startup")
 def startup_event():
+    global PLANET_API_KEY
+    global PLANET_URL
     """Authenticates to Planet API
 
     Raises:
