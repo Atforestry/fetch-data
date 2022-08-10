@@ -6,6 +6,7 @@ from app.utils import generate_raster_png_files, list_files_in_directory, predic
 import pandas as pd
 import datetime
 from dateutil.relativedelta import relativedelta
+import logging
 from logging.config import dictConfig
 from app.log_config import log_config 
 from io import StringIO
