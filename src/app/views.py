@@ -6,8 +6,6 @@ from app.utils import generate_raster_png_files, list_files_in_directory, predic
 import pandas as pd
 import datetime
 from dateutil.relativedelta import relativedelta
-import psycopg2
-import logging
 from logging.config import dictConfig
 from app.log_config import log_config 
 from io import StringIO
@@ -15,7 +13,7 @@ from io import StringIO
 dictConfig(log_config)
 logger = logging.getLogger("planet_api_logger")
 class PlanetAPI():
-    def __init__(self, api_key=PLANET_API_KEY, api_url=PLANET_URL):
+    def __init__(self, api_key, api_url):
         self.api_key = api_key
         self.api_url = api_url
         print(api_url)

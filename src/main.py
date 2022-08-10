@@ -52,7 +52,7 @@ def startup_event():
         SystemError: If no PLANET_API_KEY is provided
     """    
     global planet_api
-    planet_api = PlanetAPI()
+    planet_api = PlanetAPI(PLANET_API_KEY, PLANET_URL)
     #setup session
     global session
     session = requests.Session()
