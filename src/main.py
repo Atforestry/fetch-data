@@ -8,7 +8,6 @@ from fastapi.responses import HTMLResponse, FileResponse
 from app.utils import get_raster_image_path, predict_raster_deforestation_category,push_to_gcp
 from app.views import PlanetAPI, Mosaic
 import logging
-import psycopg2
 from logging.config import dictConfig
 from app.log_config import log_config 
 import requests
@@ -23,17 +22,6 @@ app = FastAPI(
 
 PLANET_API_KEY = os.environ.get('PLANET_API_KEY')
 PLANET_URL = "https://api.planet.com/basemaps/v1/mosaics"
-DB_URL = os.getenv('DB_URL')
-POSTGRES_DB = os.getenv('POSTGRES_DB')
-POSTGRES_USER = os.getenv('POSTGRES_USER')
-POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
-
-conn = psycopg2.connect(
-    host=DB_URL,
-    port=5432,
-    user=POSTGRES_USER,
-    password=POSTGRES_PASSWORD,
-    database=POSTGRES_DB) 
 
 @app.get('/healthcheck', status_code=status.HTTP_200_OK)
 
@@ -54,7 +42,7 @@ def startup_event():
         SystemError: If no PLANET_API_KEY is provided
     """    
     global planet_api
-    planet_api = PlanetAPI(PLANET_API_KEY, PLANET_URL, conn)
+    planet_api = PlanetAPI(PLANET_API_KEY, PLANET_URL)
     #setup session
     global session
     session = requests.Session()
@@ -91,7 +79,7 @@ def fetch_mosaics():
     mosaic_name = "planet_medres_normalized_analytic"
     bbox = "-53,-4,-52,-3"
 
-    mosaic = Mosaic(name = mosaic_name, session=session, url=planet_api.api_url, conn=conn)
+    mosaic = Mosaic(name = mosaic_name, session=session, url=planet_api.api_url)
     #Set the mosaic id
     mosaic.set_mosaic_id()
     #Get the quads

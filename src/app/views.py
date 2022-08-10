@@ -6,6 +6,7 @@ from app.utils import generate_raster_png_files, list_files_in_directory, predic
 import pandas as pd
 import datetime
 from dateutil.relativedelta import relativedelta
+import psycopg2
 import logging
 from logging.config import dictConfig
 from app.log_config import log_config 
@@ -13,24 +14,37 @@ from io import StringIO
 
 dictConfig(log_config)
 logger = logging.getLogger("planet_api_logger")
+
+DB_URL = os.getenv('DB_URL')
+POSTGRES_DB = os.getenv('POSTGRES_DB')
+POSTGRES_USER = os.getenv('POSTGRES_USER')
+POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
+
+conn = psycopg2.connect(
+    host=DB_URL,
+    port=5432,
+    user=POSTGRES_USER,
+    password=POSTGRES_PASSWORD,
+    database=POSTGRES_DB) 
+
 class PlanetAPI():
-    def __init__(self, api_key, api_url, conn):
+    def __init__(self, api_key, api_url):
         self.api_key = api_key
         self.api_url = api_url
-        self.conn = conn
 
 class Mosaic():
-    def __init__(self, name, session, url, conn):
+    def __init__(self, name, session, url):
         self.name = name
         self.session = session
         self.url = url
         self.api_name = name + '_date_mosaic'
-        self.conn = conn
 
     def set_mosaic_id(self):
         """
         Returns mosaic_id if exists
         """ 
+
+        global conn
 
         #create postgres connection
 
@@ -56,7 +70,7 @@ class Mosaic():
             if len(mosaic['mosaics']) > 0:
                 self.date = yearMonth
 
-                cur = self.conn.cursor()
+                cur = conn.cursor()
 
                 cur.execute(f'SELECT * FROM prediction WHERE predictiontimestamp = \'{firstDay} 00:00:00\'') 
                 rows = cur.fetchall()
@@ -179,6 +193,9 @@ class Mosaic():
         return None
 
     def run_inference_predictions(self):
+
+        global conn
+
         #Get path
         main_path = os.path.join('src','data', 'mosaics')
         #initialize Datframe
@@ -236,7 +253,7 @@ class Mosaic():
         #write to dataframe
         data.to_csv(os.path.join('src','data','data.csv'), index=False)
 
-        cursor = self.conn.cursor()
+        cursor = conn.cursor()
         cursor.execute("SELECT setval('prediction_id_seq', (SELECT max(id) FROM prediction))")
         
         f = StringIO()
@@ -253,7 +270,7 @@ class Mosaic():
 
         f.close()
 
-        self.conn.commit()
+        conn.commit()
         cursor.close()    
                     
                     
