@@ -20,11 +20,12 @@ class PlanetAPI():
         self.conn = conn
 
 class Mosaic():
-    def __init__(self, name, session, url):
+    def __init__(self, name, session, url, conn):
         self.name = name
         self.session = session
         self.url = url
         self.api_name = name + '_date_mosaic'
+        self.conn = conn
 
     def set_mosaic_id(self):
         """

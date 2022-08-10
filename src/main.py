@@ -91,7 +91,7 @@ def fetch_mosaics():
     mosaic_name = "planet_medres_normalized_analytic"
     bbox = "-53,-4,-52,-3"
 
-    mosaic = Mosaic(name = mosaic_name, session=session, url=planet_api.api_url)
+    mosaic = Mosaic(name = mosaic_name, session=session, url=planet_api.api_url, conn=conn)
     #Set the mosaic id
     mosaic.set_mosaic_id()
     #Get the quads
