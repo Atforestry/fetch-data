@@ -8,6 +8,7 @@ from fastapi.responses import HTMLResponse, FileResponse
 from app.utils import get_raster_image_path, predict_raster_deforestation_category,push_to_gcp
 from app.views import PlanetAPI, Mosaic
 import logging
+import psycopg2
 from logging.config import dictConfig
 from app.log_config import log_config 
 import requests
