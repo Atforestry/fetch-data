@@ -14,9 +14,10 @@ from io import StringIO
 dictConfig(log_config)
 logger = logging.getLogger("planet_api_logger")
 class PlanetAPI():
-    def __init__(self, api_key, api_url):
+    def __init__(self, api_key, api_url, conn):
         self.api_key = api_key
         self.api_url = api_url
+        self.conn = conn
 
 class Mosaic():
     def __init__(self, name, session, url):
@@ -28,9 +29,7 @@ class Mosaic():
     def set_mosaic_id(self):
         """
         Returns mosaic_id if exists
-        """
-
-        global comn
+        """ 
 
         #create postgres connection
 
@@ -56,7 +55,7 @@ class Mosaic():
             if len(mosaic['mosaics']) > 0:
                 self.date = yearMonth
 
-                cur = conn.cursor()
+                cur = self.conn.cursor()
 
                 cur.execute(f'SELECT * FROM prediction WHERE predictiontimestamp = \'{firstDay} 00:00:00\'') 
                 rows = cur.fetchall()
@@ -179,7 +178,6 @@ class Mosaic():
         return None
 
     def run_inference_predictions(self):
-        global conn
         #Get path
         main_path = os.path.join('src','data', 'mosaics')
         #initialize Datframe
@@ -237,7 +235,7 @@ class Mosaic():
         #write to dataframe
         data.to_csv(os.path.join('src','data','data.csv'), index=False)
 
-        cursor = conn.cursor()
+        cursor = self.conn.cursor()
         cursor.execute("SELECT setval('prediction_id_seq', (SELECT max(id) FROM prediction))")
         
         f = StringIO()
@@ -254,7 +252,7 @@ class Mosaic():
 
         f.close()
 
-        conn.commit()
+        self.conn.commit()
         cursor.close()    
                     
                     

@@ -50,13 +50,14 @@ async def main():
 def startup_event():
     global PLANET_API_KEY
     global PLANET_URL
+    global conn
     """Authenticates to Planet API
 
     Raises:
         SystemError: If no PLANET_API_KEY is provided
     """    
     global planet_api
-    planet_api = PlanetAPI(PLANET_API_KEY, PLANET_URL)
+    planet_api = PlanetAPI(PLANET_API_KEY, PLANET_URL, conn)
     #setup session
     global session
     session = requests.Session()
